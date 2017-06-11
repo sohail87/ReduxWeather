@@ -4,12 +4,18 @@ import Chart from '../components/chart'
 import GoogleMap from '../components/google_map'
 
 class WeatherList extends Component {
+
   renderWeather(cityData) {
+    function convertKelvinToCelsius(kelvin) {
+      return kelvin - 273.15
+    }
     const cityName = cityData.city.name;
-    const temps = cityData.list.map(item => item.main.temp)
-    const pressures = cityData.list.map(item => item.main.pressure)
-    const humidities = cityData.list.map(item => item.main.humidity)
-    const {lon,lat} = cityData.city.coord;
+    const temps = _.map(_.take((cityData.list.map(item => item.main.temp)),8), convertKelvinToCelsius)
+    const pressures = _.take(cityData.list.map(item => item.main.pressure),8)
+    const humidities = _.take(cityData.list.map(item => item.main.humidity),8)
+    const startDateTime = _.first(cityData.list).dt_txt
+    const endDateTime = cityData.list[7].dt_txt
+    const {lon, lat} = cityData.city.coord;
 
     return (
       <tr key={cityName}>
@@ -17,9 +23,11 @@ class WeatherList extends Component {
           <GoogleMap lon={lon} lat={lat}/>
         </td>
         <td >
-          <Chart data={temps} colour="orange" units="K"/>
+          From: {startDateTime}
+          <Chart data={temps} colour="orange" units="C"/>
         </td>
         <td >
+          To: {endDateTime}
           <Chart data={pressures} colour="black" units="hPa"/>
         </td>
         <td >
@@ -34,7 +42,7 @@ class WeatherList extends Component {
         <thead>
           <tr>
             <th>City</th>
-            <th>Temperature (K)</th>
+            <th>Temperature (C)</th>
             <th>Pressure (hPa)</th>
             <th>Humidity (%)</th>
           </tr>
